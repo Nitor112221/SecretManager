@@ -1,4 +1,5 @@
 import http
+from crypt import methods
 
 import flask
 from flask import Blueprint, jsonify, abort
@@ -113,3 +114,23 @@ def delete_secret():
     DatabaseManager().delete_secret(request.json['id'])
 
     return flask.Response(status=http.HTTPStatus.OK)
+
+
+@api.route('/master_password_exist', methods=['GET'])
+def master_password_exist():
+    if check_exist_master_password():
+        return flask.Response(status=http.HTTPStatus.OK)
+
+    return abort(http.HTTPStatus.NOT_FOUND)
+
+
+@api.route('/set_master_password', methods=['POST'])
+def set_master_password():
+    if 'password' not in request.json \
+            or isinstance(request.json['password'], str):
+        return abort(http.HTTPStatus.BAD_REQUEST)
+
+    if check_exist_master_password():
+        return abort(http.HTTPStatus.BAD_REQUEST)
+
+    return flask.Response(status=http.HTTPStatus.CREATED)
