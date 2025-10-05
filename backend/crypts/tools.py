@@ -6,7 +6,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet, InvalidToken
 
-from backend.crypts.password_to_hash import get_hash
+from crypts.password_to_hash import get_hash
 
 SALT_SIZE = 16
 KDF_ITERATIONS = 390_000

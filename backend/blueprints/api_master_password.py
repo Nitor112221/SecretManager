@@ -3,7 +3,7 @@ import http
 import flask
 from flask import Blueprint, abort, request
 
-from backend.crypts.tools import check_exist_master_password, hash_password
+from crypts.tools import check_exist_master_password, hash_password
 
 api_master = Blueprint('api_master', __name__)
 

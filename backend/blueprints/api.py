@@ -4,8 +4,8 @@ import flask
 from flask import Blueprint, jsonify, abort
 from flask import request
 
-from backend.db_manager import DatabaseManager
-from backend.crypts.tools import check_exist_master_password, compare_hash_password, encrypt_string, decrypt_string
+from db_manager import DatabaseManager
+from crypts.tools import check_exist_master_password, compare_hash_password, encrypt_string, decrypt_string
 
 api = Blueprint('api', __name__)
 
