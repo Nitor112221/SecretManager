@@ -74,3 +74,23 @@ def hash_password(password: str) -> str:
     os.remove('output.txt')
 
     return hash
+
+
+def compare_hash_password(password):
+    hash = hash_password(password)
+
+    with open('data/master_password.txt','r') as file:
+        hash_pass = file.read().strip()
+
+    return hash == hash_pass
+
+
+def check_exist_master_password():
+    if not os.path.exists('data/master_password.txt'):
+        return False
+
+    with open('data/master_password.txt','r') as file:
+        if file.read().strip():
+            return True
+
+        return False
