@@ -6,6 +6,8 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 from cryptography.fernet import Fernet, InvalidToken
 
+from backend.crypts.password_to_hash import get_hash
+
 SALT_SIZE = 16
 KDF_ITERATIONS = 390_000
 
@@ -62,16 +64,17 @@ def hash_password(password: str) -> str:
     Хеширует пароль с помощью exe файла с закрытым содержимым соли
     """
 
-    with open('input.txt', 'w') as file:
-        file.write(password)
-
-    os.system('password_to_hash.exe < input.txt > output.txt')
-
-    with open('output.txt', 'r') as file:
-        hash = file.read()
-
-    os.remove('input.txt')
-    os.remove('output.txt')
+    # with open('input.txt', 'w') as file:
+    #     file.write(password)
+    #
+    # os.system('crypts/password_to_hash.exe < input.txt > output.txt')
+    #
+    # with open('output.txt', 'r') as file:
+    #     hash = file.read()
+    #
+    # os.remove('input.txt')
+    # os.remove('output.txt')
+    hash = get_hash(password)
 
     return hash
 

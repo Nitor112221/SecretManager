@@ -1,34 +1,45 @@
+import threading
 import sqlite3
 import os
 
+class SingletonMeta(type):
+    _instances = {}
+    _lock = threading.Lock()
 
-class DatabaseManager:
-    _instance = None
-    _connection = None
+    def __call__(cls, *args, **kwargs):
+        with cls._lock:
+            if cls not in cls._instances:
+                instance = super().__call__(*args, **kwargs)
+                cls._instances[cls] = instance
+            return cls._instances[cls]
 
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(DatabaseManager, cls).__new__(cls, *args, **kwargs)
-            cls._instance._connection = None
-        return cls._instance
 
-    def connect(self, path):
+class DatabaseManager(metaclass=SingletonMeta):
+    def __init__(self, db_name="data/database.db"):
+        if not hasattr(self, 'connection'):
+            self.db_name = db_name
+            self._connection = None
+            self.cursor = None
+            self._connect()
+
+    def _connect(self):
         flag = False
-        if not os.path.exists(path):
+        if not os.path.exists(self.db_name):
             flag = True
 
         if self._connection is None:
-            self._connection = sqlite3.connect(path)
+            self._connection = sqlite3.connect(self.db_name, check_same_thread=False)
+            self.cursor = self._connection.cursor()
 
         if flag:
             self.create_tables()
 
     def create_tables(self):
-        self._connection.cursor().execute(
+        self.cursor.execute(
             """CREATE TABLE secret_general 
             (id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, name TEXT NOT NULL UNIQUE)"""
         )
-        self._connection.cursor().execute(
+        self.cursor.execute(
             """CREATE TABLE secret_fields 
             (id INTEGER PRIMARY KEY AUTOINCREMENT, label TEXT NOT NULL, value TEXT NOT NULL,
              secret_id INTEGER REFERENCES secret_general (id) ON DELETE CASCADE NOT NULL)"""
@@ -36,10 +47,10 @@ class DatabaseManager:
         self._connection.commit()
 
     def get_secret_by_id(self, id_secret):
-        data = self._connection.cursor().execute(
+        data = self.cursor.execute(
             """SELECT id, name FROM secret_general WHERE id = ? """,
             (id_secret,),
-        ).all()
+        ).fetchall()
 
         if data:
             return data[0]
@@ -47,10 +58,12 @@ class DatabaseManager:
         return None
 
     def get_secrets_by_substring(self, sub_string):
-        secrets = self._connection.cursor().execute(
-            """SELECT id, name FROM secret_general WHERE name like '*?*'""",
-            (sub_string,),
-        ).all()
+        template = '%' + sub_string + '%'
+
+        secrets = self.cursor.execute(
+            """SELECT id, name FROM secret_general WHERE name LIKE ?""",
+            (template,),
+        ).fetchall()
 
         if secrets:
             return secrets
@@ -62,10 +75,10 @@ class DatabaseManager:
         if secret is None:
             return None
 
-        fields = self._connection.cursor(
+        fields = self.cursor.execute(
             """SELECT label, value FROM secret_fields WHERE secret_id = ?""",
             (secret[0],),
-        ).all()
+        ).fetchall()
 
         if fields:
             return fields
@@ -74,24 +87,24 @@ class DatabaseManager:
 
     def create_secret(self, name, data) -> bool:
         """Создаёт объект секрета в таблице и возвращает True, если получилось и False, если возникла ошибка"""
-        secret = self._connection.cursor(
+        secret = self.cursor.execute(
             """SELECT id, name FROM secret_general WHERE name = ?""",
             (name,),
-        ).all()
+        ).fetchall()
         if secret:
             return False
 
-        self._connection.cursor(
+        self.cursor.execute(
             """INSERT INTO secret_general (name) VALUES(?)""",
             (name,),
         )
-        secret = self._connection.cursor(
+        secret = self.cursor.execute(
             """SELECT id, name FROM secret_general WHERE name = ?""",
             (name,),
-        ).first()
+        ).fetchone()
 
         for secret_fields in data:
-            self._connection.cursor(
+            self.cursor.execute(
                 """INSERT INTO secret_fields (label, value, secret_id) VALUES(?, ?, ?)""",
                 (
                     secret_fields['label'],
@@ -104,7 +117,7 @@ class DatabaseManager:
         return True
 
     def delete_secret(self, id_secret):
-        self._connection.cursor(
+        self.cursor.execute(
             """DELETE FROM secret_general WHERE id = ?""",
             (id_secret,),
         )

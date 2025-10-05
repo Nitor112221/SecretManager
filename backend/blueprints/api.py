@@ -1,5 +1,4 @@
 import http
-from crypt import methods
 
 import flask
 from flask import Blueprint, jsonify, abort
@@ -48,7 +47,7 @@ def create_secret():
             or not isinstance(request.json['password'], str):
         return abort(http.HTTPStatus.BAD_REQUEST)
 
-    if compare_hash_password(request.json['password']):
+    if not compare_hash_password(request.json['password']):
         return abort(http.HTTPStatus.FORBIDDEN)
 
     fields = []
@@ -71,11 +70,11 @@ def create_secret():
 @api.route('/get_secret', methods=["POST"])
 def get_secret():
     if 'id' not in request.json \
-            or isinstance(request.json['id'], int):
+            or not isinstance(request.json['id'], int):
         return abort(http.HTTPStatus.BAD_REQUEST)
 
     if 'password' not in request.json \
-            or isinstance(request.json['password'], str):
+            or not isinstance(request.json['password'], str):
         return abort(http.HTTPStatus.BAD_REQUEST)
 
     if not compare_hash_password(request.json['password']):
@@ -89,7 +88,7 @@ def get_secret():
     response = []
 
     for field in fields:
-        response.append({'label': field['label'], 'value': decrypt_string(request.json['password'], fields['value'])})
+        response.append({'label': field[0], 'value': decrypt_string(request.json['password'], field[1])})
 
     return jsonify(response), http.HTTPStatus.OK
 
@@ -97,11 +96,11 @@ def get_secret():
 @api.route('/delete_secret', methods=["DELETE"])
 def delete_secret():
     if 'id' not in request.json \
-            or isinstance(request.json['id'], int):
+            or not isinstance(request.json['id'], int):
         return abort(http.HTTPStatus.BAD_REQUEST)
 
     if 'password' not in request.json \
-            or isinstance(request.json['password'], str):
+            or not isinstance(request.json['password'], str):
         return abort(http.HTTPStatus.BAD_REQUEST)
 
     if not compare_hash_password(request.json['password']):
@@ -114,23 +113,3 @@ def delete_secret():
     DatabaseManager().delete_secret(request.json['id'])
 
     return flask.Response(status=http.HTTPStatus.OK)
-
-
-@api.route('/master_password_exist', methods=['GET'])
-def master_password_exist():
-    if check_exist_master_password():
-        return flask.Response(status=http.HTTPStatus.OK)
-
-    return abort(http.HTTPStatus.NOT_FOUND)
-
-
-@api.route('/set_master_password', methods=['POST'])
-def set_master_password():
-    if 'password' not in request.json \
-            or isinstance(request.json['password'], str):
-        return abort(http.HTTPStatus.BAD_REQUEST)
-
-    if check_exist_master_password():
-        return abort(http.HTTPStatus.BAD_REQUEST)
-
-    return flask.Response(status=http.HTTPStatus.CREATED)
