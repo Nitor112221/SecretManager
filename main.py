@@ -205,6 +205,7 @@ class MasterKeyDialog(QtWidgets.QDialog):
         # hint
         hint = QtWidgets.QLabel("Мастер-ключ хранится только на сервере. Клиент использует его для запросов.")
         hint.setStyleSheet("color:#a78bfa; font-size:12px;")
+        hint.setWordWrap(True)
         v.addWidget(hint)
         # buttons
         btns = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
@@ -354,6 +355,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         self.right_layout = QtWidgets.QVBoxLayout(self.right_widget)
         self.right_layout.setContentsMargins(15, 15, 15, 15)
         self.right_layout.addWidget(QtWidgets.QLabel("Добро пожаловать!", alignment=QtCore.Qt.AlignCenter))
+        self.right_widget.setMaximumWidth(800)
 
     def _clear_right_panel(self):
         while self.right_layout.count():
@@ -717,6 +719,7 @@ class ClientWindow(QtWidgets.QMainWindow):
         lbl = QtWidgets.QLabel(text)
         lbl.setStyleSheet(f"font-weight:bold;color:{color};font-size:16px;")
         lbl.setAlignment(QtCore.Qt.AlignCenter)
+        lbl.setWordWrap(True)  # upd
         self.right_layout.addWidget(lbl)
         self.right_widget.fade_in()
 
