@@ -33,14 +33,14 @@ python -m venv .venv
 ```
 ### Активируем виртуальное окружение
 ```bash
-.venv/Scrtipts/activate
+.venv\Scripts\activate
 ```
 
 ## Установить зависимости
 
 ### Если вы хотите запустить клиент через python, то выполните команду
 ```bash
-pip install -r requirements/cliend.txt
+pip install -r requirements/client.txt
 ```
 
 ### При любом варианте запуска выполните команду
