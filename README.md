@@ -67,3 +67,10 @@ python main_backend.py 1234
 python main.py
 ```
 ### (не забудьте поставить нужный порт в клиенте, который установили для локального веб сервера)
+
+## Дополнительная информация
+
+### [Архитектура проекта](https://miro.com/welcomeonboard/TzZUY2hNVE1KdnIvOURlWFpBRDVVSlJWVUV6R0dVOXJGNEhSWWsrc1o4cTRacmNJSnhjMkVQZ3U5Vll4Mk0wb01zMEluZ2dyMDJabEs3MlJab0dPSDI1YXlhRGtvSjg5TjhmVElLT2RLQXNySWlaZnNURnkwR0VMVTRHUGhUVXRnbHpza3F6REdEcmNpNEFOMmJXWXBBPT0hdjE=?share_link_id=238825892193)
+
+### Схема базы данных
+![sheme](ER.png)
